@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import RNPickerSelect from 'react-native-picker-select'; // Import the dropdown picker
+import RNPickerSelect from 'react-native-picker-select'; 
 import { useNavigation } from '@react-navigation/native';
 
 const NewQuestionScreen = () => {
@@ -11,7 +11,7 @@ const NewQuestionScreen = () => {
   const [trackingNumber, setTrackingNumber] = useState('');
   const navigation = useNavigation();
 
-  // Simulating directorate options for the dropdown
+  
   const directorateOptions = [
     { label: 'Directorate 1', value: 'directorate1' },
     { label: 'Directorate 2', value: 'directorate2' },
@@ -28,7 +28,7 @@ const NewQuestionScreen = () => {
       trackingNumber,
     });
 
-    // Navigate back to Home or another screen
+    
     navigation.goBack();
   };
 
@@ -47,7 +47,7 @@ const NewQuestionScreen = () => {
 
         <Text style={styles.label}>Question Body</Text>
         <TextInput
-          style={[styles.input, { height: 100 }]} // Adjust height for larger input area
+          style={[styles.input, { height: 100 }]} 
           placeholder="Enter Question Body"
           value={questionBody}
           onChangeText={setQuestionBody}
