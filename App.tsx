@@ -1,71 +1,78 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import LoginScreen from './screens/LoginScreen';
-import ForgotPassword from './screens/ForgotPasswordScreen';
-import Register from './screens/Register';
+import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import NewQuestionScreen from './screens/NewQuestionScreen';
-import AllQuestionsScreen from './screens/AllQuestions';
-import QuestionDetail from './screens/QuestionDetail';
 import DrawerNavigation from './navigation/DrawerNavigation';
-
-
-const Stack = createStackNavigator();
+import AllQuestionsScreen from './screens/AllQuestions';
+import RegisterScreen from './screens/Register';
+import QuestionDetail from './screens/QuestionDetail';
+import { AuthProvider } from './context/AuthContext';
 
 export type RootStackParamList = {
   Login: undefined;
-  ForgotPasswordScreen: undefined;
   Home: undefined;
+  ForgotPassword: undefined;
   Register: undefined;
-  NewQuestionScreen: undefined;
+  NewQuestion: undefined;
+  AllQuestions: undefined;
+  About: undefined;
+  QuestionDetail: { questionId: string };
 };
+
+const Stack = createStackNavigator<RootStackParamList>();
+
+type NavigationProps = StackNavigationProp<RootStackParamList>;
+
+// Create a QueryClient instance
+const queryClient = new QueryClient();
 
 const MainNavigator = () => {
   return (
-    <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Home"
-        component={DrawerNavigation}
-        options={{ headerShown: false }}
-      />
+    <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Home" component={DrawerNavigation} />
       <Stack.Screen
         name="ForgotPassword"
-        component={ForgotPassword}
-        options={{ title: 'Forgot Password' }}
+        component={ForgotPasswordScreen}
+        options={{ headerShown: true, title: 'Forgot Password' }}
       />
       <Stack.Screen
         name="Register"
-        component={Register}
-        options={{ title: 'Register' }}
+        component={RegisterScreen}
+        options={{ headerShown: true, title: 'Register' }}
       />
       <Stack.Screen
-        name="NewQuestionScreen"
+        name="NewQuestion"
         component={NewQuestionScreen}
-        options={{ title: 'New Question' }}
+        options={{ headerShown: true, title: 'New Question' }}
       />
       <Stack.Screen
         name="AllQuestions"
         component={AllQuestionsScreen}
-        options={{ title: 'All Questions' }}
+        options={{ headerShown: true, title: 'All Questions' }}
       />
       <Stack.Screen
         name="QuestionDetail"
         component={QuestionDetail}
-        options={{ title: 'Question Detail' }}
+        options={{ headerShown: true, title: 'Question Detail' }}
       />
     </Stack.Navigator>
   );
 };
 
-export default function App() {
+const App = () => {
   return (
-    <NavigationContainer>
-      <MainNavigator />
-    </NavigationContainer>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <NavigationContainer>
+          <MainNavigator />
+        </NavigationContainer>
+      </QueryClientProvider>
+    </AuthProvider>
   );
-}
+};
+
+export default App;

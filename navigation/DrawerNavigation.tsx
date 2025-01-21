@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeScreen from '../screens/HomeScreen';
 import AllQuestionsScreen from '../screens/AllQuestions';
 import NewQuestionScreen from '../screens/NewQuestionScreen';
-import { useContext } from 'react';
+import AboutScreen from '../screens/AboutScreen';
 import { AuthContext } from '../context/AuthContext';
-import Icon from 'react-native-vector-icons/Ionicons'; 
+import Icon from 'react-native-vector-icons/Ionicons';
+import UnAssignedQuestionsScreen from '../screens/UnAssignedQuestionsScreen';
 
 const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = ({ navigation }) => {
   const { user } = useContext(AuthContext);
-
- 
   const [activeRoute, setActiveRoute] = useState('Home');
 
   const handleNavigation = (route) => {
@@ -23,7 +22,6 @@ const CustomDrawerContent = ({ navigation }) => {
 
   return (
     <View style={styles.drawerContent}>
-      
       <View style={styles.profileSection}>
         <Image
           source={{ uri: user?.profileImage || 'https://via.placeholder.com/150' }}
@@ -33,14 +31,10 @@ const CustomDrawerContent = ({ navigation }) => {
         <Text style={styles.userEmail}>{user?.email || 'guest@example.com'}</Text>
       </View>
 
-       <View style={styles.divider} />
+      <View style={styles.divider} />
 
-     
       <TouchableOpacity
-        style={[
-          styles.link,
-          activeRoute === 'Home' && styles.activeLink, 
-        ]}
+        style={[styles.link, activeRoute === 'Home' && styles.activeLink]}
         onPress={() => handleNavigation('Home')}
       >
         <Icon name="home-outline" size={20} color={activeRoute === 'Home' ? '#fff' : '#000'} />
@@ -48,39 +42,41 @@ const CustomDrawerContent = ({ navigation }) => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[
-          styles.link,
-          activeRoute === 'AllQuestions' && styles.activeLink, 
-        ]}
+        style={[styles.link, activeRoute === 'AllQuestions' && styles.activeLink]}
         onPress={() => handleNavigation('AllQuestions')}
       >
         <Icon name="list-outline" size={20} color={activeRoute === 'AllQuestions' ? '#fff' : '#000'} />
-        <Text
-          style={[
-            styles.linkText,
-            activeRoute === 'AllQuestions' && styles.activeLinkText,
-          ]}
-        >
+        <Text style={[styles.linkText, activeRoute === 'AllQuestions' && styles.activeLinkText]}>
           All Questions
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[
-          styles.link,
-          activeRoute === 'NewQuestion' && styles.activeLink, 
-        ]}
+        style={[styles.link, activeRoute === 'NewQuestion' && styles.activeLink]}
         onPress={() => handleNavigation('NewQuestion')}
       >
         <Icon name="add-outline" size={20} color={activeRoute === 'NewQuestion' ? '#fff' : '#000'} />
-        <Text
-          style={[
-            styles.linkText,
-            activeRoute === 'NewQuestion' && styles.activeLinkText,
-          ]}
-        >
+        <Text style={[styles.linkText, activeRoute === 'NewQuestion' && styles.activeLinkText]}>
           Add New Question
         </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.link, activeRoute === 'UnAssignedQuestions' && styles.activeLink]}
+        onPress={() => handleNavigation('UnAssignedQuestions')}
+      >
+        <Icon name="book-outline" size={20} color={activeRoute === 'UnAssignedQuestions' ? '#fff' : '#000'} />
+        <Text style={[styles.linkText, activeRoute === 'UnAssignedQuestions' && styles.activeLinkText]}>
+          Unassigned Questions
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.link, activeRoute === 'About' && styles.activeLink]}
+        onPress={() => handleNavigation('About')}
+      >
+        <Icon name="information-circle-outline" size={20} color={activeRoute === 'About' ? '#fff' : '#000'} />
+        <Text style={[styles.linkText, activeRoute === 'About' && styles.activeLinkText]}>About</Text>
       </TouchableOpacity>
     </View>
   );
@@ -92,6 +88,8 @@ const DrawerNavigation = () => {
       <Drawer.Screen name="Home" component={HomeScreen} />
       <Drawer.Screen name="AllQuestions" component={AllQuestionsScreen} />
       <Drawer.Screen name="NewQuestion" component={NewQuestionScreen} />
+      <Drawer.Screen name="UnAssignedQuestions" component={UnAssignedQuestionsScreen} />
+      <Drawer.Screen name="About" component={AboutScreen} />
     </Drawer.Navigator>
   );
 };
@@ -132,7 +130,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent', 
   },
   activeLink: {
-    backgroundColor: '#007BFF', 
+    backgroundColor: '#ff7900', 
   },
   linkText: {
     fontSize: 16,

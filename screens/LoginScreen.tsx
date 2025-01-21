@@ -1,156 +1,175 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  ImageBackground,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from './types'; 
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Image } from "react-native";
 
+const LoginPage = ({ navigation }) => {
+  const [credentials, setCredentials] = useState({
+    userName: "",
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
+  const handleChange = (name: string, value: string) => {
+    setCredentials((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-const LoginScreen = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigation = useNavigation();
+  const handleSubmit = async () => {
+    setError(null);
+    setIsLoading(true);
 
-  const handleLogin = () => {
-    console.log({ email, password });
-    navigation.navigate('Home');
+    try {
+      // Simulate a mock user login without context
+      const mockUser = { name: "John Doe", email: credentials.email };
+      console.log("Mock login successful", mockUser);
+      navigation.navigate("Home"); // Navigate to Home screen
+    } catch (err) {
+      console.error("Login failed", err);
+      setError("Login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <ImageBackground
-      source={require('../assets/get.jpg')} 
-      style={styles.background}
-    >
-      <View style={styles.container}>
-        <View style={styles.card}>
-          <Image
-            source={require('../assets/moe-new.png')}
-            style={styles.logo}
-          />
-          <Text style={styles.cardTitle}>Login</Text>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your email"
-              placeholderTextColor="#888"
-              value={email}
-              onChangeText={setEmail}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your password"
-              placeholderTextColor="#888"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-            />
-          </View>
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Login</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ForgotPassword')}
+    <View style={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.title}>Welcome Back!</Text>
 
-          >
-            <Text style={styles.linkText}>Forgot Password?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Register')}
-          >
-            <Text style={styles.linkText}>
-              Don’t have an account? Click here
-            </Text>
-          </TouchableOpacity>
+        <Image source={require('../assets/moe-new.png')} style={styles.logo} />
+
+        {error && <Text style={styles.errorText}>{error}</Text>}
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Username</Text>
+          <TextInput
+            style={styles.input}
+            value={credentials.userName}
+            onChangeText={(text) => handleChange("userName", text)}
+            placeholder="JohnDoe"
+          />
         </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={credentials.email}
+            onChangeText={(text) => handleChange("email", text)}
+            placeholder="Johndoe@gmail.com"
+            keyboardType="email-address"
+          />
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            style={styles.input}
+            value={credentials.password}
+            onChangeText={(text) => handleChange("password", text)}
+            placeholder="Enter your password"
+            secureTextEntry
+          />
+        </View>
+
+        <TouchableOpacity
+          style={[styles.button, isLoading && { backgroundColor: "#ccc" }]}
+          onPress={handleSubmit}
+          disabled={isLoading}
+        >
+          {isLoading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.buttonText}>LOGIN</Text>}
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+          <Text style={styles.registerLink}>No account? Register</Text>
+        </TouchableOpacity>
       </View>
-    </ImageBackground>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'center',
-  },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 16,
+    backgroundColor: "#f8f8f8",
   },
   card: {
-    width: '95%',
+    width: "100%",
+    maxWidth: 400,
     padding: 20,
-    borderRadius: 10,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.5,
-    shadowOffset: { width: 0, height: 2 },
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
     shadowRadius: 6,
-    marginTop: 200,
+    elevation: 5,
+    alignItems: "center",
   },
-  logo: {
-    width: 150,
-    height: 100,
-    marginBottom: 16,
+
+   logo: {
+    width: 120,
+    height: 120,
+    alignSelf: "center",
+    marginBottom: 20,
   },
-  cardTitle: {
+  title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 24,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+    color: "#343a40",
   },
-  inputContainer: {
-    width: '100%',
-    marginBottom: 16,
+  inputGroup: {
+    width: "100%",
+    marginBottom: 12,
   },
-  inputLabel: {
+  label: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#555',
-    marginBottom: 8,
+    fontWeight: "bold",
+    marginBottom: 4,
+    color: "#343a40",
   },
   input: {
-    width: '100%',
-    padding: 12,
+    height: 45,
+    borderColor: "#ddd",
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 8,
-    backgroundColor: '#f9f9f9',
+    paddingLeft: 10,
     fontSize: 16,
+    backgroundColor: "#fff",
   },
-  loginButton: {
-    width: '100%',
-    padding: 12,
+  button: {
+    backgroundColor: "#007BFF",
+    paddingVertical: 12,
+    width: "100%",
     borderRadius: 8,
-    backgroundColor: '#007bff',
-    alignItems: 'center',
-    marginTop: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 15,
   },
-  loginButtonText: {
-    color: '#fff',
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  registerLink: {
+    color: "#007BFF",
     fontSize: 16,
-    fontWeight: 'bold',
+    marginTop: 10,
+    textAlign: "center",
   },
-  linkText: {
-    color: '#007bff',
-    fontSize: 14,
-    marginTop: 12,
+  errorText: {
+    color: "#dc3545",
+    marginBottom: 10,
+    textAlign: "center",
   },
 });
 
-export default LoginScreen;
+export default LoginPage;
