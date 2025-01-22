@@ -31,7 +31,7 @@ interface Question {
 
 const fetchQuestions = async (): Promise<Question[]> => {
   try {
-    const response = await axios.get('https://9b5a-41-76-168-3.ngrok-free.app/api/Question');
+    const response = await axios.get('https://baec-41-76-168-3.ngrok-free.app/api/Question');
     return response.data.data || [];
   } catch (error) {
     throw new Error('Failed to fetch questions');
@@ -68,8 +68,18 @@ const AllQuestionsScreen: React.FC = () => {
       {/* Expandable content */}
       {expanded === item.id && (
         <View style={styles.expandedContent}>
-          <Text style={styles.info}>Origin: {item.questionOrigin}</Text>
-          <Text style={styles.info}>Serial No: {item.serialNumber}</Text>
+          <Text>
+            <Text style={styles.infoTitle}>Origin: </Text>
+            <Text style={styles.infoValue}>{item.questionOrigin}</Text>
+          </Text>
+          <Text>
+            <Text style={styles.infoTitle}>Due: </Text>
+            <Text style={styles.infoValue}>{item.dateDue}</Text>
+          </Text>
+          <Text>
+            <Text style={styles.infoTitle}>Serial No: </Text>
+            <Text style={styles.infoBlue}>{item.serialNumber}</Text>
+          </Text>
           {item.answer && <Text style={styles.answer}>Answer: {item.answer}</Text>}
           {item.fileName && <Text style={styles.file}>File: {item.fileName}</Text>}
           {item.edits && <Text style={styles.edits}>Edits: {item.edits}</Text>}
@@ -178,10 +188,19 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#ddd',
   },
-  info: {
+  infoTitle: {
     fontSize: 14,
-    color: '#666',
-    marginBottom: 5,
+    color: '#000', // Black for the title
+    fontWeight: 'bold',
+  },
+  infoValue: {
+    fontSize: 14,
+    color: '#666', // Default for values (except serial number)
+  },
+  infoBlue: {
+    fontSize: 14,
+    color: '#007bff', // Blue for serial number value
+    fontWeight: 'bold',
   },
   answer: {
     fontSize: 14,

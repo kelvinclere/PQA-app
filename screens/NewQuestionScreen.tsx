@@ -5,17 +5,21 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
+import Icon from 'react-native-vector-icons/FontAwesome';  // Add this import for calendar icon
+import DateTimePickerModal from "react-native-modal-datetime-picker";  // Optional: for date picker
 
 const NewQuestionScreen = () => {
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('');
   const navigation = useNavigation();
 
   const formik = useFormik({
     initialValues: {
       title: '',
       subQuestion: '',
-      questionOrigin: '', // initially empty
+      questionOrigin: '', 
       serialNumber: '',
       fileName: '',
       date: '',
@@ -48,6 +52,20 @@ const NewQuestionScreen = () => {
   const resetState = () => {
     setIsSuccess(false);
     formik.resetForm();
+  };
+
+  const showDatePicker = () => {
+    setDatePickerVisible(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisible(false);
+  };
+
+  const handleDateConfirm = (date) => {
+    setSelectedDate(date.toISOString().split('T')[0]);  // Set the date as YYYY-MM-DD
+    formik.setFieldValue('date', selectedDate);  // Update formik value
+    hideDatePicker();
   };
 
   return (
@@ -128,17 +146,28 @@ const NewQuestionScreen = () => {
             <Text style={styles.errorText}>{formik.errors.fileName}</Text>
           )}
 
-          <Text style={styles.label}>Date</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter Date"
-            value={formik.values.date}
-            onChangeText={formik.handleChange('date')}
-            onBlur={formik.handleBlur('date')}
-          />
+          <Text style={styles.label}>Due Date</Text>
+          <View style={styles.dateInputContainer}>
+            <TextInput
+              style={styles.dateInput}
+              placeholder="Select Due Date"
+              value={selectedDate}
+              editable={false}
+            />
+            <TouchableOpacity onPress={showDatePicker} style={styles.iconContainer}>
+              <Icon name="calendar" size={20} color="#ff7900" />
+            </TouchableOpacity>
+          </View>
           {formik.touched.date && formik.errors.date && (
             <Text style={styles.errorText}>{formik.errors.date}</Text>
           )}
+
+          <DateTimePickerModal
+            isVisible={isDatePickerVisible}
+            mode="date"
+            onConfirm={handleDateConfirm}
+            onCancel={hideDatePicker}
+          />
 
           <TouchableOpacity style={styles.button} onPress={formik.handleSubmit}>
             <Text style={styles.buttonText}>{loading ? 'Submitting...' : 'Submit'}</Text>
@@ -198,6 +227,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     fontSize: 12,
     marginBottom: 16,
+  },
+  dateInputContainer: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  dateInput: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    fontSize: 12,
+    paddingRight: 40, // Add padding to the right to make space for the icon
+  },
+  iconContainer: {
+    position: 'absolute',
+    right: 10,
+    top: 15, // Adjust icon position vertically
   },
   button: {
     backgroundColor: '#ff7900',

@@ -135,3 +135,119 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useState, useContext } from "react";
+// import {
+//   View,
+//   Text,
+//   TouchableOpacity,
+//   StyleSheet,
+//   ScrollView,
+// } from "react-native";
+// import { AuthContext } from "../context/AuthContext";
+// import NewQuestion from "../screens/NewQuestionScreen";
+// import AssignedQuestions from "../screens/AssignedQuestions";
+// import UnassignedQuestions from "../screens/UnAssignedQuestionsScreen";
+// import AllQuestions from "../screens/NewQuestionScreen";
+// import AllUsers from "../screens/AllUsers";
+// import LoadingSpinner from "components/LoadingSpinner";
+
+// const DashboardScreen = () => {
+//   const [activeItem, setActiveItem] = useState<number>(0);
+//   const { user, isLoading } = useContext(AuthContext);
+
+//   if (isLoading) {
+//     return <LoadingSpinner />;
+//   }
+
+//   const handleView = (button: number) => {
+//     setActiveItem(button);
+//   };
+
+//   const components = [
+//     { id: 1, title: "New Question", component: <NewQuestion /> },
+//     { id: 2, title: "Assigned Questions", component: <AssignedQuestions /> },
+//     { id: 4, title: "Unassigned Questions", component: <UnassignedQuestions /> },
+//     { id: 7, title: "All Questions", component: <AllQuestions /> },
+//     { id: 8, title: "All Users", component: <AllUsers /> },
+//   ];
+
+//   return (
+//     <ScrollView style={styles.mainContent}>
+//       <View style={styles.mainHeader}>
+//         <Text style={styles.headerTitle}>Welcome, {user?.name}</Text>
+//       </View>
+//       <View style={styles.cardContainer}>
+//         {components.map((item) => (
+//           <View
+//             key={item.id}
+//             style={[
+//               styles.card,
+//               activeItem === item.id && styles.activeCard,
+//             ]}
+//           >
+//             <TouchableOpacity onPress={() => handleView(item.id)}>
+//               <Text style={styles.cardTitle}>{item.title}</Text>
+//             </TouchableOpacity>
+//             {activeItem === item.id && item.component}
+//           </View>
+//         ))}
+//       </View>
+//     </ScrollView>
+//   );
+// };
+
+// export default DashboardScreen;
+
+// const styles = StyleSheet.create({
+//   mainContent: {
+//     flex: 1,
+//     padding: 10,
+//   },
+//   mainHeader: {
+//     marginBottom: 20,
+//   },
+//   headerTitle: {
+//     fontSize: 20,
+//     fontWeight: "bold",
+//     textAlign: "center",
+//   },
+//   cardContainer: {
+//     flexDirection: "row",
+//     flexWrap: "wrap",
+//     justifyContent: "space-between",
+//   },
+//   card: {
+//     width: "48%",
+//     padding: 15,
+//     marginBottom: 10,
+//     borderRadius: 10,
+//     backgroundColor: "#fff",
+//     borderWidth: 1,
+//     borderColor: "#ddd",
+//   },
+//   activeCard: {
+//     borderColor: "#ff7900",
+//   },
+//   cardTitle: {
+//     fontSize: 16,
+//     fontWeight: "bold",
+//   },
+// });
+

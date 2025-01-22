@@ -1,19 +1,22 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import HomeScreen from '../screens/HomeScreen';
+import DashboadScreen from '../screens/DashboadScreen';
 import AllQuestionsScreen from '../screens/AllQuestions';
 import NewQuestionScreen from '../screens/NewQuestionScreen';
 import AboutScreen from '../screens/AboutScreen';
+import UnAssignedQuestionsScreen from '../screens/UnAssignedQuestionsScreen';
+import AssignedQuestionsScreen from '../screens/AssignedQuestions';
 import { AuthContext } from '../context/AuthContext';
 import Icon from 'react-native-vector-icons/Ionicons';
-import UnAssignedQuestionsScreen from '../screens/UnAssignedQuestionsScreen';
+import AllUsers from 'screens/AllUsers';
 
 const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = ({ navigation }) => {
   const { user } = useContext(AuthContext);
-  const [activeRoute, setActiveRoute] = useState('Home');
+  const [activeRoute, setActiveRoute] = useState('Dashboad');
+  const [isQuestionsOpen, setIsQuestionsOpen] = useState(false);
 
   const handleNavigation = (route) => {
     setActiveRoute(route);
@@ -34,42 +37,90 @@ const CustomDrawerContent = ({ navigation }) => {
       <View style={styles.divider} />
 
       <TouchableOpacity
-        style={[styles.link, activeRoute === 'Home' && styles.activeLink]}
-        onPress={() => handleNavigation('Home')}
+        style={[styles.link, activeRoute === 'Dashboad' && styles.activeLink]}
+        onPress={() => handleNavigation('Dashboad')}
       >
-        <Icon name="home-outline" size={20} color={activeRoute === 'Home' ? '#fff' : '#000'} />
-        <Text style={[styles.linkText, activeRoute === 'Home' && styles.activeLinkText]}>Home</Text>
+        <Icon name="home-outline" size={20} color={activeRoute === 'Dashboad' ? '#fff' : '#000'} />
+        <Text style={[styles.linkText, activeRoute === 'Dashboad' && styles.activeLinkText]}>Dashboard</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.link, activeRoute === 'AllQuestions' && styles.activeLink]}
-        onPress={() => handleNavigation('AllQuestions')}
+        style={[styles.link, activeRoute === 'AllUsers' && styles.activeLink]}
+        onPress={() => handleNavigation('AllUsers')}
       >
-        <Icon name="list-outline" size={20} color={activeRoute === 'AllQuestions' ? '#fff' : '#000'} />
-        <Text style={[styles.linkText, activeRoute === 'AllQuestions' && styles.activeLinkText]}>
-          All Questions
-        </Text>
+        <Icon name="people-outline" size={20} color={activeRoute === 'AllUsers' ? '#fff' : '#000'} />
+        <Text style={[styles.linkText, activeRoute === 'AllUsers' && styles.activeLinkText]}>All Users</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.link, activeRoute === 'NewQuestion' && styles.activeLink]}
-        onPress={() => handleNavigation('NewQuestion')}
-      >
-        <Icon name="add-outline" size={20} color={activeRoute === 'NewQuestion' ? '#fff' : '#000'} />
-        <Text style={[styles.linkText, activeRoute === 'NewQuestion' && styles.activeLinkText]}>
-          Add New Question
-        </Text>
-      </TouchableOpacity>
+      <View style={styles.divider} />
 
       <TouchableOpacity
-        style={[styles.link, activeRoute === 'UnAssignedQuestions' && styles.activeLink]}
-        onPress={() => handleNavigation('UnAssignedQuestions')}
+        style={styles.link}
+        onPress={() => setIsQuestionsOpen((prev) => !prev)}
       >
-        <Icon name="book-outline" size={20} color={activeRoute === 'UnAssignedQuestions' ? '#fff' : '#000'} />
-        <Text style={[styles.linkText, activeRoute === 'UnAssignedQuestions' && styles.activeLinkText]}>
-          Unassigned Questions
-        </Text>
+        <Icon name="help-circle-outline" size={20} color="#000" />
+        <Text style={styles.linkText}>Questions</Text>
+        <Icon
+          name={isQuestionsOpen ? 'chevron-up-outline' : 'chevron-down-outline'}
+          size={20}
+          color="#000"
+          style={styles.chevronIcon}
+        />
       </TouchableOpacity>
+
+      {isQuestionsOpen && (
+        <View style={styles.dropdownContainer}>
+          <TouchableOpacity
+            style={[
+              styles.dropdownItem,
+              activeRoute === 'AllQuestions' && styles.activeLink,
+            ]}
+            onPress={() => handleNavigation('AllQuestions')}
+          >
+            <Text style={[styles.dropdownText, activeRoute === 'AllQuestions' && styles.activeLinkText]}>
+              All Questions
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.dropdownItem,
+              activeRoute === 'NewQuestion' && styles.activeLink,
+            ]}
+            onPress={() => handleNavigation('NewQuestion')}
+          >
+            <Text style={[styles.dropdownText, activeRoute === 'NewQuestion' && styles.activeLinkText]}>
+              Add New Question
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.dropdownItem,
+              activeRoute === 'UnAssignedQuestions' && styles.activeLink,
+            ]}
+            onPress={() => handleNavigation('UnAssignedQuestions')}
+          >
+            <Text style={[styles.dropdownText, activeRoute === 'UnAssignedQuestions' && styles.activeLinkText]}>
+              Unassigned Questions
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.dropdownItem,
+              activeRoute === 'AssignedQuestions' && styles.activeLink,
+            ]}
+            onPress={() => handleNavigation('AssignedQuestions')}
+          >
+            <Text style={[styles.dropdownText, activeRoute === 'AssignedQuestions' && styles.activeLinkText]}>
+              Assigned Questions
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      <View style={styles.divider} />
 
       <TouchableOpacity
         style={[styles.link, activeRoute === 'About' && styles.activeLink]}
@@ -85,10 +136,12 @@ const CustomDrawerContent = ({ navigation }) => {
 const DrawerNavigation = () => {
   return (
     <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
-      <Drawer.Screen name="Home" component={HomeScreen} />
+      <Drawer.Screen name="Dashboad" component={DashboadScreen} />
+      <Drawer.Screen name="AllUsers" component={AllUsers} />
       <Drawer.Screen name="AllQuestions" component={AllQuestionsScreen} />
       <Drawer.Screen name="NewQuestion" component={NewQuestionScreen} />
       <Drawer.Screen name="UnAssignedQuestions" component={UnAssignedQuestionsScreen} />
+      <Drawer.Screen name="AssignedQuestions" component={AssignedQuestionsScreen} />
       <Drawer.Screen name="About" component={AboutScreen} />
     </Drawer.Navigator>
   );
@@ -96,12 +149,11 @@ const DrawerNavigation = () => {
 
 export default DrawerNavigation;
 
-
 const styles = StyleSheet.create({
   drawerContent: {
     flex: 1,
     padding: 40,
-    backgroundColor: '#f8f9fa', 
+    backgroundColor: '#f8f9fa',
   },
   profileSection: {
     alignItems: 'center',
@@ -119,30 +171,47 @@ const styles = StyleSheet.create({
   },
   userEmail: {
     fontSize: 14,
-    color: '#6c757d', 
+    color: '#6c757d',
   },
   link: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 10,
     padding: 10,
     borderRadius: 5,
-    backgroundColor: 'transparent', 
+    backgroundColor: 'transparent',
   },
   activeLink: {
-    backgroundColor: '#ff7900', 
+    backgroundColor: '#ff7900',
   },
   linkText: {
     fontSize: 16,
-    color: 'black', 
-    marginLeft: 10, 
+    color: 'black',
+    marginLeft: 10,
   },
   activeLinkText: {
-    color: '#fff', 
+    color: '#fff',
   },
-    divider: {
+  divider: {
     borderBottomWidth: 1,
-    borderColor: '#ccc', 
-    marginVertical: 10, 
+    borderColor: '#ccc',
+    marginVertical: 10,
+  },
+  dropdownContainer: {
+    marginLeft: 30,
+    marginVertical: 5,
+  },
+  dropdownItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginBottom: 5,
+  },
+  dropdownText: {
+    fontSize: 14,
+    color: 'black',
+  },
+  chevronIcon: {
+    marginLeft: 'auto',
   },
 });

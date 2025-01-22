@@ -3,26 +3,28 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet, ActivityIndicator, 
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 
-import MainQuestion from './MainQuestion';
+import { useAuth } from '../context/AuthContext';
+import MainAnswerQuestion from '../screens/MainAnswerQuestion';
 
-const UnAssignedQuestions: React.FC = () => {
+const AssignedQuestions: React.FC = () => {
   const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
+  const { user } = useAuth();
+  const liaisonId = user?.id;
 
-  const { isLoading, error, data } = useQuery({
-    queryKey: ['unassignedQuestions', selectedQuestionId],
+  const { isLoading, error, data, refetch } = useQuery({
+    queryKey: ['assigned', selectedQuestionId],
     queryFn: async () => {
-     
-      const response = await axios.get('https://58fc-105-163-157-51.ngrok-free.app/api/Question/unassigned');
+      const response = await axios.get(`https://ff09-41-76-168-3.ngrok-free.app/api/Question/my-questions/{liasonId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       return response?.data?.data || [];
     },
   });
 
-  const handleToggleView = (questionId: number) => {
-    setSelectedQuestionId(questionId);
-  };
-
   if (isLoading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return <ActivityIndicator size="large" color="orange" />;
   }
 
   if (error) {
@@ -30,12 +32,17 @@ const UnAssignedQuestions: React.FC = () => {
     return null;
   }
 
+  const handleToggleView = (questionId: number) => {
+    setSelectedQuestionId(questionId);
+  };
+
   const renderItem = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={styles.row}
       onPress={() => handleToggleView(item.id)}
     >
       <Text style={styles.cell}>{new Date(item.createdAt).toLocaleDateString()}</Text>
+      <Text style={styles.cell}>{item.serialNumber}</Text>
       <Text style={styles.cell}>{item.questionOrigin}</Text>
       <Text style={styles.cell}>{item.dateDue}</Text>
       <Text style={styles.cell} numberOfLines={1} ellipsizeMode="tail">
@@ -46,9 +53,12 @@ const UnAssignedQuestions: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Unassigned Questions</Text>
       {selectedQuestionId ? (
-        <MainQuestion selectedQuestionId={selectedQuestionId} handleToggleView={handleToggleView} />
+        <MainAnswerQuestion
+          refetch={refetch}
+          handleToggleView={handleToggleView}
+          selectedQuestionId={selectedQuestionId}
+        />
       ) : (
         <FlatList
           data={data}
@@ -57,6 +67,7 @@ const UnAssignedQuestions: React.FC = () => {
           ListHeaderComponent={
             <View style={styles.header}>
               <Text style={styles.headerCell}>Date Created</Text>
+              <Text style={styles.headerCell}>Serial Number</Text>
               <Text style={styles.headerCell}>Question Origin</Text>
               <Text style={styles.headerCell}>Due Date</Text>
               <Text style={styles.headerCell}>Question Statement</Text>
@@ -73,11 +84,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
   },
   header: {
     flexDirection: 'row',
@@ -105,4 +111,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UnAssignedQuestions;
+export default AssignedQuestions;

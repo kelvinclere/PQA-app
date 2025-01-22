@@ -3,6 +3,7 @@ import axios from "axios";
 import { BASE_URL } from "@env";
 
 interface User {
+  role: string;
   name: string;
   email: string;
 }

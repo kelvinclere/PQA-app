@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import HomeScreen from "../screens/HomeScreen";
+import HomeScreen from "../screens/DashboadScreen";
 import AdminScreen from "../screens/AdminScreen";
 import CustomDrawer from "../components/CustomDrawer";
 import { Feather } from "@expo/vector-icons";
