@@ -1,4 +1,4 @@
-import useUsersData from 'hooks/use-users';
+import useUsersData from 'hooks/useUsersData';
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { User } from 'types/User';

@@ -1,175 +1,220 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Image } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  ScrollView,
+  Image,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "../context/AuthContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FontAwesome } from "@expo/vector-icons";
 
-const LoginPage = ({ navigation }) => {
-  const [credentials, setCredentials] = useState({
+export default function LoginScreen() {
+  const [formData, setFormData] = useState({
     userName: "",
     email: "",
     password: "",
   });
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [isLoadingLogin, setIsLoadingLogin] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
-  const handleChange = (name: string, value: string) => {
-    setCredentials((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const navigation = useNavigation();
+  const { login } = useAuth();
+
+  
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem("user");
+        if (storedUser) {
+          console.log("User already logged in, navigating to Home...");
+          navigation.replace("Home");
+        }
+      } catch (err) {
+        console.log("Error checking stored user:", err);
+      }
+    };
+    checkUser();
+  }, []);
+
+  const handleChange = (key, value) => {
+    setFormData((prev) => {
+      const updatedFormData = {
+        ...prev,
+        [key]: value,
+      };
+      console.log("Updated Form Data:", updatedFormData);
+      return updatedFormData;
+    });
   };
 
   const handleSubmit = async () => {
     setError(null);
-    setIsLoading(true);
-
+    setIsLoadingLogin(true);
     try {
-      // Simulate a mock user login without context
-      const mockUser = { name: "John Doe", email: credentials.email };
-      console.log("Mock login successful", mockUser);
-      navigation.navigate("Home"); // Navigate to Home screen
+      const user = await login(formData);
+      console.log("User data:", user);
+
+      if (user) {
+        await AsyncStorage.setItem("user", JSON.stringify(user));
+        navigation.replace("Home"); 
+      } else {
+        setError("Login failed. Please check your credentials.");
+      }
     } catch (err) {
-      console.error("Login failed", err);
-      setError("Login failed. Please try again.");
+      setError("Login failed. Please check your credentials.");
     } finally {
-      setIsLoading(false);
+      setIsLoadingLogin(false);
     }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Welcome Back!</Text>
-
-        <Image source={require('../assets/moe-new.png')} style={styles.logo} />
+        <Text style={styles.title}>Parliamentary Q&A Tracking System</Text>
+        <Image source={require("../assets/moe-new.png")} style={styles.logo} />
 
         {error && <Text style={styles.errorText}>{error}</Text>}
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Username</Text>
+        <Text style={styles.label}>Username</Text>
+        <View style={styles.inputContainer}>
+          <FontAwesome name="user" size={20} color="#ff7900" style={styles.icon} />
           <TextInput
             style={styles.input}
-            value={credentials.userName}
-            onChangeText={(text) => handleChange("userName", text)}
             placeholder="JohnDoe"
+            value={formData.userName}
+            onChangeText={(text) => handleChange("userName", text)}
           />
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>Email</Text>
+        <View style={styles.inputContainer}>
+          <FontAwesome name="envelope" size={20} color="#ff7900" style={styles.icon} />
           <TextInput
             style={styles.input}
-            value={credentials.email}
-            onChangeText={(text) => handleChange("email", text)}
             placeholder="Johndoe@gmail.com"
             keyboardType="email-address"
+            value={formData.email}
+            onChangeText={(text) => handleChange("email", text)}
           />
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>Password</Text>
+        <View style={styles.inputContainer}>
+          <FontAwesome name="lock" size={20} color="#ff7900" style={styles.icon} />
           <TextInput
             style={styles.input}
-            value={credentials.password}
-            onChangeText={(text) => handleChange("password", text)}
             placeholder="Enter your password"
-            secureTextEntry
+            secureTextEntry={!passwordVisible}
+            value={formData.password}
+            onChangeText={(text) => handleChange("password", text)}
           />
+          <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
+            <FontAwesome name={passwordVisible ? "eye" : "eye-slash"} size={20} color="#ff7900" style={styles.eyeIcon} />
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
-          style={[styles.button, isLoading && { backgroundColor: "#ccc" }]}
+          style={[styles.button, isLoadingLogin && styles.buttonDisabled]}
           onPress={handleSubmit}
-          disabled={isLoading}
+          disabled={isLoadingLogin}
         >
-          {isLoading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.buttonText}>LOGIN</Text>}
+          {isLoadingLogin ? <ActivityIndicator color="white" /> : <Text style={styles.buttonText}>LOGIN</Text>}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-          <Text style={styles.registerLink}>No account? Register</Text>
+          <Text style={styles.linkText}>Don't have an account? Register</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
+    padding: 20,
     justifyContent: "center",
-    alignItems: "center",
-    padding: 16,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#f9f9f9",
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    alignSelf: "center",
+    marginBottom: 10,
   },
   card: {
-    width: "100%",
-    maxWidth: 400,
+    backgroundColor: "white",
+    borderRadius: 10,
     padding: 20,
-    backgroundColor: "#fff",
-    borderRadius: 12,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
     elevation: 5,
-    alignItems: "center",
-  },
-
-   logo: {
-    width: 120,
-    height: 120,
-    alignSelf: "center",
-    marginBottom: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 10,
     textAlign: "center",
-    color: "#343a40",
-  },
-  inputGroup: {
-    width: "100%",
-    marginBottom: 12,
+    marginBottom: 20,
+    color: "#ff7900"
   },
   label: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 4,
-    color: "#343a40",
+    marginBottom: 5,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    backgroundColor: "white",
+    marginBottom: 15,
+  },
+  icon: {
+    marginRight: 10,
+  },
+  eyeIcon: {
+    marginLeft: "auto",
   },
   input: {
-    height: 45,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingLeft: 10,
-    fontSize: 16,
-    backgroundColor: "#fff",
-  },
-  button: {
-    backgroundColor: "#007BFF",
-    paddingVertical: 12,
-    width: "100%",
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 15,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  registerLink: {
-    color: "#007BFF",
-    fontSize: 16,
-    marginTop: 10,
-    textAlign: "center",
+    flex: 1,
+    height: 50,
   },
   errorText: {
-    color: "#dc3545",
-    marginBottom: 10,
+    color: "red",
     textAlign: "center",
+    marginBottom: 15,
+  },
+  button: {
+    backgroundColor: "#ff7900",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  buttonDisabled: {
+    backgroundColor: "#a5d6a7",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  linkText: {
+    textAlign: "center",
+    color: "blue",
+    marginTop: 20,
+    fontSize: 14,
   },
 });
-
-export default LoginPage;

@@ -1,204 +1,267 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Image } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  ScrollView,
+  Image,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
-import { Formik } from "formik";
-import * as Yup from "yup";
+import { FontAwesome } from "@expo/vector-icons"; // You can use any icon library
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const validationSchema = Yup.object({
-  userName: Yup.string().required("Username is required"),
-  firstName: Yup.string().required("First name is required"),
-  lastName: Yup.string().required("Last name is required"),
-  email: Yup.string().email("Invalid email address").required("Email is required"),
-  password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
-  confirmpassword: Yup.string()
-    .oneOf([Yup.ref('password'), null], "Passwords must match")
-    .required("Confirm password is required"),
-});
+export default function Register() {
+  const [formData, setFormData] = useState({
+    userName: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [isLoadingRegister, setIsLoadingRegister] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
-const RegisterScreen = ({ navigation }) => {
-  const { register, loading } = useAuth();
+  const navigation = useNavigation();
+  const { register } = useAuth();
 
-  const handleSubmit = async (values, { setErrors }) => {
-    try {
-      await register(values);
-      navigation.navigate("Home");
-    } catch (err) {
-      setErrors({ general: err.message || "Registration failed. Please try again." });
-    }
+  const handleChange = (key: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
   };
 
+const handleSubmit = async () => {
+  setError(null);
+  setIsLoadingRegister(true);
+
+  try {
+    await register(formData);
+    await AsyncStorage.setItem("user", JSON.stringify(formData)); 
+
+    Alert.alert(
+      "Registration Successful",
+      "Please log in to continue.",
+      [{ text: "OK", onPress: () => navigation.navigate("Login") }]
+    );
+  } catch (err) {
+    console.error("Registration failed:", err);
+    setError("Registration failed. Please check your input.");
+  } finally {
+    setIsLoadingRegister(false);
+  }
+};
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.card}>
+        <Text style={styles.title}>Create Your Account</Text>
         <Image source={require('../assets/moe-new.png')} style={styles.logo} />
 
-        <Text style={styles.title} accessibilityRole="header">Create Your Account</Text>
+        {error && <Text style={styles.errorText}>{error}</Text>}
 
-        <Formik
-          initialValues={{
-            userName: "",
-            firstName: "",
-            lastName: "",
-            email: "",
-            password: "",
-            confirmpassword: "",
-          }}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
+        
+        <Text style={styles.label}>User Name</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="JohnDoe"
+            value={formData.userName}
+            onChangeText={(text) => handleChange("userName", text)}
+          />
+          <FontAwesome name="user" size={20} color="#ff7900" style={styles.icon} />
+        </View>
+
+        {/* First Name */}
+        <Text style={styles.label}>First Name</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="John"
+            value={formData.firstName}
+            onChangeText={(text) => handleChange("firstName", text)}
+          />
+          <FontAwesome name="user" size={20} color="#ff7900" style={styles.icon} />
+        </View>
+
+        {/* Last Name */}
+        <Text style={styles.label}>Last Name</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Doe"
+            value={formData.lastName}
+            onChangeText={(text) => handleChange("lastName", text)}
+          />
+          <FontAwesome name="user" size={20} color="#ff7900" style={styles.icon} />
+        </View>
+
+        {/* Email */}
+        <Text style={styles.label}>Email</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Johndoe@gmail.com"
+            keyboardType="email-address"
+            value={formData.email}
+            onChangeText={(text) => handleChange("email", text)}
+          />
+          <FontAwesome name="envelope" size={20} color="#ff7900" style={styles.icon} />
+        </View>
+
+        {/* Password */}
+        <Text style={styles.label}>Password</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your password"
+            secureTextEntry={!passwordVisible}
+            value={formData.password}
+            onChangeText={(text) => handleChange("password", text)}
+          />
+          <FontAwesome name="lock" size={20} color="#ff7900" style={styles.icon} />
+          <TouchableOpacity
+            style={styles.eyeIcon}
+            onPress={() => setPasswordVisible(!passwordVisible)}
+          >
+            <FontAwesome
+              name={passwordVisible ? "eye" : "eye-slash"}
+              size={20}
+              color="#ff7900"
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Confirm Password */}
+        <Text style={styles.label}>Confirm Password</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm your password"
+            secureTextEntry={!confirmPasswordVisible}
+            value={formData.confirmPassword}
+            onChangeText={(text) => handleChange("confirmPassword", text)}
+          />
+          <FontAwesome name="lock" size={20} color="#ff7900" style={styles.icon} />
+          <TouchableOpacity
+            style={styles.eyeIcon}
+            onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+          >
+            <FontAwesome
+              name={confirmPasswordVisible ? "eye" : "eye-slash"}
+              size={20}
+              color="#ff7900"
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Register Button */}
+        <TouchableOpacity
+          style={[styles.button, isLoadingRegister && styles.buttonDisabled]}
+          onPress={handleSubmit}
+          disabled={isLoadingRegister}
         >
-          {({ values, handleChange, handleBlur, handleSubmit, touched, errors }) => (
-            <>
-              {errors.general && <Text style={styles.error} accessibilityRole="alert">{errors.general}</Text>}
-
-              <TextInput
-                style={[styles.input, touched.userName && errors.userName ? styles.inputError : null]}
-                placeholder="Username"
-                value={values.userName}
-                onChangeText={handleChange("userName")}
-                onBlur={handleBlur("userName")}
-                autoCapitalize="none"
-              />
-              {touched.userName && errors.userName && <Text style={styles.error}>{errors.userName}</Text>}
-
-              <TextInput
-                style={[styles.input, touched.firstName && errors.firstName ? styles.inputError : null]}
-                placeholder="First Name"
-                value={values.firstName}
-                onChangeText={handleChange("firstName")}
-                onBlur={handleBlur("firstName")}
-              />
-              {touched.firstName && errors.firstName && <Text style={styles.error}>{errors.firstName}</Text>}
-
-              <TextInput
-                style={[styles.input, touched.lastName && errors.lastName ? styles.inputError : null]}
-                placeholder="Last Name"
-                value={values.lastName}
-                onChangeText={handleChange("lastName")}
-                onBlur={handleBlur("lastName")}
-              />
-              {touched.lastName && errors.lastName && <Text style={styles.error}>{errors.lastName}</Text>}
-
-              <TextInput
-                style={[styles.input, touched.email && errors.email ? styles.inputError : null]}
-                placeholder="Email"
-                keyboardType="email-address"
-                value={values.email}
-                onChangeText={handleChange("email")}
-                onBlur={handleBlur("email")}
-                autoCapitalize="none"
-              />
-              {touched.email && errors.email && <Text style={styles.error}>{errors.email}</Text>}
-
-              <TextInput
-                style={[styles.input, touched.password && errors.password ? styles.inputError : null]}
-                placeholder="Password"
-                secureTextEntry
-                value={values.password}
-                onChangeText={handleChange("password")}
-                onBlur={handleBlur("password")}
-              />
-              {touched.password && errors.password && <Text style={styles.error}>{errors.password}</Text>}
-
-              <TextInput
-                style={[styles.input, touched.confirmpassword && errors.confirmpassword ? styles.inputError : null]}
-                placeholder="Confirm Password"
-                secureTextEntry
-                value={values.confirmpassword}
-                onChangeText={handleChange("confirmpassword")}
-                onBlur={handleBlur("confirmpassword")}
-              />
-              {touched.confirmpassword && errors.confirmpassword && <Text style={styles.error}>{errors.confirmpassword}</Text>}
-
-              <TouchableOpacity
-                style={[styles.button, loading && styles.buttonDisabled]}
-                onPress={handleSubmit}
-                disabled={loading}
-              >
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>REGISTER</Text>}
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                <Text style={styles.linkText}>Already have an account? Login</Text>
-              </TouchableOpacity>
-            </>
+          {isLoadingRegister ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.buttonText}>REGISTER</Text>
           )}
-        </Formik>
-      </View>
-    </View>
-  );
-};
+        </TouchableOpacity>
 
-export default RegisterScreen;
+        {/* Login Link */}
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+          <Text style={styles.linkText}>Already have an account? Login</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
+    padding: 20,
     justifyContent: "center",
-    padding: 20,
-    backgroundColor: "#f8f9fa",
-  },
-  card: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-    width: "100%",
-    maxWidth: 400,
-    alignSelf: "center",
+    backgroundColor: "#f9f9f9",
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 100,
+    height: 100,
     alignSelf: "center",
-    marginBottom: 20,
+    marginBottom: 10,
+  },
+  card: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5, 
+  },
+    label: {
+    fontSize: 16,
+    marginBottom: 5,
   },
   title: {
     fontSize: 24,
+    fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
-    fontWeight: "bold",
-    color: "#343a40",
   },
-  error: {
-    color: "#dc3545",
-    textAlign: "center",
-    marginBottom: 10,
+  inputContainer: {
+    marginBottom: 15,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  icon: {
+    position: "absolute",
+    left: 10,
   },
   input: {
     height: 50,
-    borderColor: "#ced4da",
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingLeft: 10,
-    fontSize: 16,
-    backgroundColor: "#fff",
+    borderColor: "#ddd",
+    borderRadius: 8,
+    paddingLeft: 40, 
+    backgroundColor: "white",
+    flex: 1,
   },
-  inputError: {
-    borderColor: "#dc3545",
+  eyeIcon: {
+    position: "absolute",
+    right: 10,
+  },
+  errorText: {
+    color: "red",
+    textAlign: "center",
+    marginBottom: 15,
   },
   button: {
-    backgroundColor: "#007BFF",
+    backgroundColor: "#ff7900",
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 8,
     alignItems: "center",
+    marginTop: 10,
   },
   buttonDisabled: {
-    backgroundColor: "#6c757d",
+    backgroundColor: "#a5d6a7",
   },
   buttonText: {
-    color: "#fff",
+    color: "white",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "bold",
   },
   linkText: {
     textAlign: "center",
-    color: "#007BFF",
-    marginTop: 15,
-    fontSize: 16,
+    color: "blue",
+    marginTop: 20,
+    fontSize: 14,
   },
 });

@@ -7,11 +7,12 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
+  TextInput,
+  ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { BASE_URL } from '@env';
 
 interface Question {
   id: string;
@@ -31,7 +32,7 @@ interface Question {
 
 const fetchQuestions = async (): Promise<Question[]> => {
   try {
-    const response = await axios.get('https://baec-41-76-168-3.ngrok-free.app/api/Question');
+    const response = await axios.get('https://407e-41-76-168-3.ngrok-free.app/api/Question');
     return response.data.data || [];
   } catch (error) {
     throw new Error('Failed to fetch questions');
@@ -53,37 +54,33 @@ const AllQuestionsScreen: React.FC = () => {
 
   const renderItem = ({ item }: { item: Question }) => (
     <TouchableOpacity
-      style={styles.card}
+      style={styles.emailCard}
       onPress={() => handleQuestionPress(item.id)}
     >
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.subQuestion}>
-        {item.subQuestion.length > 50
-          ? `${item.subQuestion.slice(0, 50)}...`
-          : item.subQuestion}
+      <Text style={styles.sender} numberOfLines={1} ellipsizeMode="tail">
+        {item.title}
       </Text>
-      <Text style={styles.dueDate}>Due Date: {item.dateDue}</Text>
-      <Text style={styles.status}>Status: {item.status ? 'Answered' : 'Pending'}</Text>
-
-      {/* Expandable content */}
+      <Text style={styles.subject} numberOfLines={1} ellipsizeMode="tail">
+        {item.subQuestion}
+      </Text>
+      <Text style={styles.snippet} numberOfLines={2} ellipsizeMode="tail">
+        {item.questionOrigin}
+      </Text>
+      <Text style={styles.time}>Due Date: {item.dateDue}</Text>
       {expanded === item.id && (
-        <View style={styles.expandedContent}>
-          <Text>
-            <Text style={styles.infoTitle}>Origin: </Text>
-            <Text style={styles.infoValue}>{item.questionOrigin}</Text>
-          </Text>
-          <Text>
-            <Text style={styles.infoTitle}>Due: </Text>
-            <Text style={styles.infoValue}>{item.dateDue}</Text>
-          </Text>
-          <Text>
-            <Text style={styles.infoTitle}>Serial No: </Text>
-            <Text style={styles.infoBlue}>{item.serialNumber}</Text>
-          </Text>
-          {item.answer && <Text style={styles.answer}>Answer: {item.answer}</Text>}
-          {item.fileName && <Text style={styles.file}>File: {item.fileName}</Text>}
-          {item.edits && <Text style={styles.edits}>Edits: {item.edits}</Text>}
-        </View>
+        <Text style={styles.details}>
+          <Text style={styles.infoTitle}>Serial No: </Text>
+          <Text style={styles.infoBlue}>{item.serialNumber}</Text>
+          {'\n'}
+          <Text style={styles.infoTitle}>Answer: </Text>
+          <Text style={styles.infoValue}>{item.answer || 'No answer yet'}</Text>
+          {'\n'}
+          <Text style={styles.infoTitle}>File: </Text>
+          <Text style={styles.infoValue}>{item.fileName || 'No file attached'}</Text>
+          {'\n'}
+          <Text style={styles.infoTitle}>Edits: </Text>
+          <Text style={styles.infoValue}>{item.edits || 'No edits'}</Text>
+        </Text>
       )}
     </TouchableOpacity>
   );
@@ -108,14 +105,22 @@ const AllQuestionsScreen: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Image source={require('../assets/moe-new.png')} style={styles.logo} />
-        <Text style={styles.headerText}>View Questions</Text>
+        <TextInput placeholder="Search Question" style={styles.searchInput} />
       </View>
+
       <FlatList
         data={data}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={styles.emailList}
       />
+
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate('NewQuestion')}
+      >
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -123,99 +128,95 @@ const AllQuestionsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
+    backgroundColor: '#f5f5f5',
   },
   header: {
-    height: 70,
+    height: 60,
     backgroundColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
     borderBottomColor: '#ddd',
-    marginBottom: 20,
   },
   logo: {
     width: 40,
     height: 40,
-    marginRight: 15,
   },
-  headerText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
+  searchInput: {
+    marginLeft: 20,
+    flex: 1,
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 20,
+    paddingLeft: 20,
   },
-  listContainer: {
-    paddingBottom: 20,
+  emailList: {
+    padding: 10,
   },
-  card: {
-    backgroundColor: '#f9f9f9',
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 4,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
+  emailCard: {
+    backgroundColor: '#fff',
+    padding: 15,
     marginBottom: 10,
+    borderRadius: 8,
+    elevation: 2,
   },
-  subQuestion: {
+  sender: {
     fontSize: 16,
-    color: '#555',
-    marginBottom: 5,
-  },
-  dueDate: {
-    fontSize: 14,
-    color: '#d9534f',
     fontWeight: 'bold',
-    marginBottom: 5,
   },
-  status: {
+  subject: {
     fontSize: 14,
-    color: '#17a2b8',
-    marginBottom: 5,
+    color: '#007bff',
+    marginVertical: 5,
   },
-  expandedContent: {
+  snippet: {
+    fontSize: 12,
+    color: '#555',
+  },
+  time: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 5,
+  },
+  details: {
+    fontSize: 12,
+    color: '#444',
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: '#ddd',
   },
   infoTitle: {
-    fontSize: 14,
-    color: '#000', // Black for the title
+    fontSize: 12,
+    color: '#000',
     fontWeight: 'bold',
   },
   infoValue: {
-    fontSize: 14,
-    color: '#666', // Default for values (except serial number)
+    fontSize: 12,
+    color: '#666',
   },
   infoBlue: {
-    fontSize: 14,
-    color: '#007bff', // Blue for serial number value
+    fontSize: 12,
+    color: '#007bff',
     fontWeight: 'bold',
   },
-  answer: {
-    fontSize: 14,
-    color: '#28a745',
-    marginBottom: 5,
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    backgroundColor: '#ff7900',
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  file: {
-    fontSize: 14,
-    color: '#007bff',
-    marginBottom: 5,
-  },
-  edits: {
-    fontSize: 14,
-    color: '#6c757d',
-    marginBottom: 5,
+  fabText: {
+    color: '#fff',
+    fontSize: 30,
+    fontWeight: 'bold',
   },
   loaderContainer: {
     flex: 1,

@@ -24,10 +24,9 @@ export type RootStackParamList = {
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-type NavigationProps = StackNavigationProp<RootStackParamList>;
 
-// Create a QueryClient instance
 const queryClient = new QueryClient();
+
 
 const MainNavigator = () => {
   return (
@@ -62,6 +61,7 @@ const MainNavigator = () => {
     </Stack.Navigator>
   );
 };
+
 
 const App = () => {
   return (

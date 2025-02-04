@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import DashboadScreen from '../screens/DashboadScreen';
 import AllQuestionsScreen from '../screens/AllQuestions';
@@ -14,7 +14,7 @@ import AllUsers from 'screens/AllUsers';
 const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = ({ navigation }) => {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext); 
   const [activeRoute, setActiveRoute] = useState('Dashboad');
   const [isQuestionsOpen, setIsQuestionsOpen] = useState(false);
 
@@ -23,19 +23,31 @@ const CustomDrawerContent = ({ navigation }) => {
     navigation.navigate(route);
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout(); 
+      navigation.navigate('Login'); 
+    } catch (error) {
+      Alert.alert('Error', 'Failed to logout. Please try again.');
+    }
+  };
+
   return (
     <View style={styles.drawerContent}>
+      
       <View style={styles.profileSection}>
         <Image
           source={{ uri: user?.profileImage || 'https://via.placeholder.com/150' }}
           style={styles.profileImage}
         />
-        <Text style={styles.userName}>{user?.name || 'Guest User'}</Text>
+        
+        <Text style={styles.userName}>Welcome Back! {user?.firstName || 'Guest User'}</Text>
         <Text style={styles.userEmail}>{user?.email || 'guest@example.com'}</Text>
       </View>
 
       <View style={styles.divider} />
 
+      
       <TouchableOpacity
         style={[styles.link, activeRoute === 'Dashboad' && styles.activeLink]}
         onPress={() => handleNavigation('Dashboad')}
@@ -44,6 +56,7 @@ const CustomDrawerContent = ({ navigation }) => {
         <Text style={[styles.linkText, activeRoute === 'Dashboad' && styles.activeLinkText]}>Dashboard</Text>
       </TouchableOpacity>
 
+     
       <TouchableOpacity
         style={[styles.link, activeRoute === 'AllUsers' && styles.activeLink]}
         onPress={() => handleNavigation('AllUsers')}
@@ -54,6 +67,7 @@ const CustomDrawerContent = ({ navigation }) => {
 
       <View style={styles.divider} />
 
+      
       <TouchableOpacity
         style={styles.link}
         onPress={() => setIsQuestionsOpen((prev) => !prev)}
@@ -77,6 +91,7 @@ const CustomDrawerContent = ({ navigation }) => {
             ]}
             onPress={() => handleNavigation('AllQuestions')}
           >
+            <Icon name="list-outline" size={18} color={activeRoute === 'AllQuestions' ? '#fff' : '#000'} />
             <Text style={[styles.dropdownText, activeRoute === 'AllQuestions' && styles.activeLinkText]}>
               All Questions
             </Text>
@@ -89,6 +104,7 @@ const CustomDrawerContent = ({ navigation }) => {
             ]}
             onPress={() => handleNavigation('NewQuestion')}
           >
+            <Icon name="add-circle-outline" size={18} color={activeRoute === 'NewQuestion' ? '#fff' : '#000'} />
             <Text style={[styles.dropdownText, activeRoute === 'NewQuestion' && styles.activeLinkText]}>
               Add New Question
             </Text>
@@ -101,6 +117,7 @@ const CustomDrawerContent = ({ navigation }) => {
             ]}
             onPress={() => handleNavigation('UnAssignedQuestions')}
           >
+            <Icon name="document-outline" size={18} color={activeRoute === 'UnAssignedQuestions' ? '#fff' : '#000'} />
             <Text style={[styles.dropdownText, activeRoute === 'UnAssignedQuestions' && styles.activeLinkText]}>
               Unassigned Questions
             </Text>
@@ -113,6 +130,7 @@ const CustomDrawerContent = ({ navigation }) => {
             ]}
             onPress={() => handleNavigation('AssignedQuestions')}
           >
+            <Icon name="checkmark-circle-outline" size={18} color={activeRoute === 'AssignedQuestions' ? '#fff' : '#000'} />
             <Text style={[styles.dropdownText, activeRoute === 'AssignedQuestions' && styles.activeLinkText]}>
               Assigned Questions
             </Text>
@@ -122,12 +140,22 @@ const CustomDrawerContent = ({ navigation }) => {
 
       <View style={styles.divider} />
 
+      
       <TouchableOpacity
         style={[styles.link, activeRoute === 'About' && styles.activeLink]}
         onPress={() => handleNavigation('About')}
       >
         <Icon name="information-circle-outline" size={20} color={activeRoute === 'About' ? '#fff' : '#000'} />
         <Text style={[styles.linkText, activeRoute === 'About' && styles.activeLinkText]}>About</Text>
+      </TouchableOpacity>
+
+      
+      <TouchableOpacity
+        style={styles.link}
+        onPress={handleLogout}
+      >
+        <Icon name="log-out-outline" size={20} color="#000" />
+        <Text style={styles.linkText}>Logout</Text>
       </TouchableOpacity>
     </View>
   );
@@ -168,6 +196,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: "#ff7900",
   },
   userEmail: {
     fontSize: 14,
@@ -202,6 +231,8 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
@@ -210,6 +241,7 @@ const styles = StyleSheet.create({
   dropdownText: {
     fontSize: 14,
     color: 'black',
+    marginLeft: 10,
   },
   chevronIcon: {
     marginLeft: 'auto',
