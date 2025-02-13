@@ -5,8 +5,9 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
-import Icon from 'react-native-vector-icons/FontAwesome';  // Add this import for calendar icon
-import DateTimePickerModal from "react-native-modal-datetime-picker";  // Optional: for date picker
+// import Picker from 'react-native-picker-select';
+import Icon from 'react-native-vector-icons/FontAwesome'; 
+import DateTimePickerModal from "react-native-modal-datetime-picker"; 
 
 const NewQuestionScreen = () => {
   const [loading, setLoading] = useState(false);
@@ -37,7 +38,7 @@ const NewQuestionScreen = () => {
     onSubmit: async (values) => {
       try {
         setLoading(true);
-        const response = await axios.post('https://9b5a-41-76-168-3.ngrok-free.app/api/Question', values);
+        const response = await axios.post('https://bd1f-41-76-168-3.ngrok-free.app/api/Question', values);
 
         setLoading(false);
         setIsSuccess(true);
@@ -63,8 +64,8 @@ const NewQuestionScreen = () => {
   };
 
   const handleDateConfirm = (date) => {
-    setSelectedDate(date.toISOString().split('T')[0]);  // Set the date as YYYY-MM-DD
-    formik.setFieldValue('date', selectedDate);  // Update formik value
+    setSelectedDate(date.toISOString().split('T')[0]);  
+    formik.setFieldValue('date', selectedDate);  
     hideDatePicker();
   };
 
@@ -239,12 +240,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     fontSize: 12,
-    paddingRight: 40, // Add padding to the right to make space for the icon
+    paddingRight: 40, 
   },
   iconContainer: {
     position: 'absolute',
     right: 10,
-    top: 15, // Adjust icon position vertically
+    top: 15, 
   },
   button: {
     backgroundColor: '#ff7900',

@@ -10,11 +10,12 @@ import AssignedQuestionsScreen from '../screens/AssignedQuestions';
 import { AuthContext } from '../context/AuthContext';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AllUsers from 'screens/AllUsers';
+import ProfileScreen from '../screens/Profile'; 
 
 const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = ({ navigation }) => {
-  const { user, logout } = useContext(AuthContext); 
+  const { user, logout } = useContext(AuthContext);
   const [activeRoute, setActiveRoute] = useState('Dashboad');
   const [isQuestionsOpen, setIsQuestionsOpen] = useState(false);
 
@@ -25,8 +26,8 @@ const CustomDrawerContent = ({ navigation }) => {
 
   const handleLogout = async () => {
     try {
-      await logout(); 
-      navigation.navigate('Login'); 
+      await logout();
+      navigation.navigate('Login');
     } catch (error) {
       Alert.alert('Error', 'Failed to logout. Please try again.');
     }
@@ -34,20 +35,24 @@ const CustomDrawerContent = ({ navigation }) => {
 
   return (
     <View style={styles.drawerContent}>
-      
       <View style={styles.profileSection}>
         <Image
           source={{ uri: user?.profileImage || 'https://via.placeholder.com/150' }}
           style={styles.profileImage}
         />
-        
         <Text style={styles.userName}>Welcome Back! {user?.firstName || 'Guest User'}</Text>
         <Text style={styles.userEmail}>{user?.email || 'guest@example.com'}</Text>
+        
+        
+        <TouchableOpacity onPress={() => handleNavigation('Profile')} style={styles.editProfileButton}>
+          <Text style={styles.editProfileText}>Edit Profile</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.divider} />
 
       
+
       <TouchableOpacity
         style={[styles.link, activeRoute === 'Dashboad' && styles.activeLink]}
         onPress={() => handleNavigation('Dashboad')}
@@ -56,7 +61,7 @@ const CustomDrawerContent = ({ navigation }) => {
         <Text style={[styles.linkText, activeRoute === 'Dashboad' && styles.activeLinkText]}>Dashboard</Text>
       </TouchableOpacity>
 
-     
+      
       <TouchableOpacity
         style={[styles.link, activeRoute === 'AllUsers' && styles.activeLink]}
         onPress={() => handleNavigation('AllUsers')}
@@ -67,8 +72,7 @@ const CustomDrawerContent = ({ navigation }) => {
 
       <View style={styles.divider} />
 
-      
-      <TouchableOpacity
+         <TouchableOpacity
         style={styles.link}
         onPress={() => setIsQuestionsOpen((prev) => !prev)}
       >
@@ -149,7 +153,6 @@ const CustomDrawerContent = ({ navigation }) => {
         <Text style={[styles.linkText, activeRoute === 'About' && styles.activeLinkText]}>About</Text>
       </TouchableOpacity>
 
-      
       <TouchableOpacity
         style={styles.link}
         onPress={handleLogout}
@@ -165,6 +168,7 @@ const DrawerNavigation = () => {
   return (
     <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen name="Dashboad" component={DashboadScreen} />
+      <Drawer.Screen name="Profile" component={ProfileScreen} />
       <Drawer.Screen name="AllUsers" component={AllUsers} />
       <Drawer.Screen name="AllQuestions" component={AllQuestionsScreen} />
       <Drawer.Screen name="NewQuestion" component={NewQuestionScreen} />
@@ -201,6 +205,16 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 14,
     color: '#6c757d',
+  },
+  editProfileButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#ff7900',
+    borderRadius: 5,
+  },
+  editProfileText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   link: {
     flexDirection: 'row',

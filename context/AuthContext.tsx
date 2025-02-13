@@ -18,7 +18,7 @@ import { Alert } from "react-native";
 import { jwtDecode } from "jwt-decode";
 import axiosInstance, { setAuthToken } from "components/utils/axios";
 
-const API_URL = "https://407e-41-76-168-3.ngrok-free.app";
+const API_URL = "https://8add-41-76-168-3.ngrok-free.app";
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -73,6 +73,8 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
           // Log decoded token for debugging
           console.log("Decoded Token:", decodedToken);
+          console.log("Token Expiry:", new Date(decodedToken.exp * 1000));
+          console.log("Current Time:", new Date());
 
           // Check if the access token is expired
           if (decodedToken.exp * 1000 < Date.now()) {
@@ -123,27 +125,34 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
         { refreshToken }
       );
 
-      await AsyncStorage.setItem("accessToken", data.accessToken);
+      if (data.accessToken) {
+        await AsyncStorage.setItem("accessToken", data.accessToken);
 
-      const decodedToken = jwtDecode<JwtPayload>(data.accessToken);
-      const userInfo: UserProfile = {
-        id: decodedToken["JWTID"],
-        username: decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
-        email: decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
-        firstName: decodedToken["FirstName"],
-        lastName: decodedToken["LastName"],
-        role: decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
-      };
+        const decodedToken = jwtDecode<JwtPayload>(data.accessToken);
+        const userInfo: UserProfile = {
+          id: decodedToken["JWTID"],
+          username: decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+          email: decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
+          firstName: decodedToken["FirstName"],
+          lastName: decodedToken["LastName"],
+          role: decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
+        };
 
-      setUser(userInfo);
-      setTokens({
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken || refreshToken,
-      });
+        setUser(userInfo);
+        setTokens({
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken || refreshToken,
+        });
 
-      return true;
+        return true;
+      }
+
+      return false;
     } catch (error) {
       console.error("Token refresh failed", error);
+      await AsyncStorage.multiRemove(["accessToken", "refreshToken", "user"]);
+      setUser(null);
+      setTokens(null);
       return false;
     }
   };

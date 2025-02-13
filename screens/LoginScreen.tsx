@@ -78,7 +78,13 @@ export default function LoginScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Parliamentary Q&A Tracking System</Text>
-        <Image source={require("../assets/moe-new.png")} style={styles.logo} />
+
+        <View style={styles.logoContainer}>
+        <Image source={require("../assets/moe-new.png")} style={styles.logo}  />
+        {/* <Text style={styles.parliamentText}>The Parliament of Kenya</Text> */}
+        </View>
+        
+
 
         {error && <Text style={styles.errorText}>{error}</Text>}
 
@@ -129,7 +135,7 @@ export default function LoginScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-          <Text style={styles.linkText}>Don't have an account? Register</Text>
+          <Text style={styles.linkText}>New Here? Register</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -144,11 +150,30 @@ const styles = StyleSheet.create({
     backgroundColor: "#f9f9f9",
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 150,
     alignSelf: "center",
     marginBottom: 10,
   },
+  logoContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  marginBottom: 10,
+},
+parliamentText: {
+  fontSize: 18,
+  fontWeight: "bold",
+  // marginLeft: 100,
+  color: "#000",
+},
+separator: {
+  borderBottomWidth: 1,
+  borderBottomColor: "#ccc",
+  width: "100%",
+  marginBottom: 10,
+},
+
   card: {
     backgroundColor: "white",
     borderRadius: 10,
@@ -213,7 +238,7 @@ const styles = StyleSheet.create({
   },
   linkText: {
     textAlign: "center",
-    color: "blue",
+    color: "#ff7900",
     marginTop: 20,
     fontSize: 14,
   },

@@ -1,54 +1,68 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';  
 
-const HomeScreen = () => {
-  const navigation = useNavigation();
-
-  const emails = [
-    { id: 1, sender: 'John Doe', subject: 'Education Budget Allocation', snippet: 'Hey, just a reminder about our meeting tomorrow...', time: '2:30 PM', details: 'Detailed info about the meeting, including key points and agenda.' },
-    { id: 2, sender: 'Jane Smith', subject: 'Project update', snippet: 'The latest update on the project...', time: '1:15 PM', details: 'This includes the latest figures and project milestones.' },
-    { id: 3, sender: 'Mark Johnson', subject: 'Digital Learning Initiative', snippet: 'Please find attached the invoice for services rendered...', time: '12:45 PM', details: 'A breakdown of costs and next steps for the initiative.' },
-    { id: 4, sender: 'Kelvin Clere', subject: 'Teachers Training Program', snippet: 'Please find attached the invoice for services rendered...', time: '13:45 PM', details: 'Detailed explanation of the training program and its schedule.' },
-    { id: 5, sender: 'Kelvin Clere', subject: 'Teachers Training Program', snippet: 'Please find attached the invoice for services rendered...', time: '13:45 PM', details: 'Detailed explanation of the training program and its schedule.' },
-    { id: 6, sender: 'Kelvin Clere', subject: 'Teachers Training Program', snippet: 'Please find attached the invoice for services rendered...', time: '13:45 PM', details: 'Detailed explanation of the training program and its schedule.' },
-    { id: 7, sender: 'Jane Smith', subject: 'Project update', snippet: 'The latest update on the project...', time: '1:15 PM', details: 'This includes the latest figures and project milestones.' },
-  ];
-
-  const [expandedCard, setExpandedCard] = useState(null);
-
-  const handleCardPress = (id) => {
-    setExpandedCard(expandedCard === id ? null : id);
-  };
+const DashboardScreen = () => {
+  const { user } = useAuth();  
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Image source={require('../assets/moe-new.png')} style={styles.logo} />
-        <TextInput placeholder="Search Question" style={styles.searchInput} />
+      
+      <View style={styles.searchContainer}>
+        <MaterialIcons name="search" size={24} color="#555" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search..."
+          placeholderTextColor="#555"
+        />
       </View>
 
-      <ScrollView contentContainerStyle={styles.emailList}>
-        {emails.map((email) => (
-          <TouchableOpacity key={email.id} onPress={() => handleCardPress(email.id)}>
-            <View style={styles.emailCard}>
-              <Text style={styles.sender}>{email.sender}</Text>
-              <Text style={styles.subject}>{email.subject}</Text>
-              <Text style={styles.snippet}>{email.snippet}</Text>
-              <Text style={styles.time}>{email.time}</Text>
-              {expandedCard === email.id && (
-                <Text style={styles.details}>{email.details}</Text>
-              )}
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+ 
+      <View style={styles.welcomeCard}>
+        <Text style={styles.welcomeText}>
+          Welcome Back, <Text style={styles.username}>{user ? `${user.firstName} ${user.lastName}` : 'User'}</Text>
+        </Text>
+        <Text style={styles.totalUsers}>
+          Total Users: <Text style={styles.userCount}>18</Text>
+        </Text>
+      </View>
 
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => navigation.navigate('NewQuestion')}>
-        <Text style={styles.fabText}>+</Text>
-      </TouchableOpacity>
+      
+      <ScrollView contentContainerStyle={styles.gridContainer} showsVerticalScrollIndicator={false}>
+        <TouchableOpacity style={styles.card}>
+          <MaterialIcons name="question-answer" size={40} color="#ff7900" />
+          <Text style={styles.cardText}>Questions</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.card}>
+          <MaterialIcons name="question-answer" size={40} color="#ff7900" />
+          <Text style={styles.cardText}>Unassigned Questions</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.card}>
+          <FontAwesome5 name="clipboard-check" size={40} color="#ff7900" />
+          <Text style={styles.cardText}>Answered</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.card}>
+          <MaterialIcons name="pending-actions" size={40} color="#ff7900" />
+          <Text style={styles.cardText}>Pending Responses</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.card}>
+          <MaterialIcons name="history" size={40} color="#ff7900" />
+          <Text style={styles.cardText}>Overdue Responses</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.card}>
+          <FontAwesome5 name="chart-bar" size={40} color="#ff7900" />
+          <Text style={styles.cardText}>Assigned Questions</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.card}>
+          <FontAwesome5 name="users" size={40} color="#ff7900" />
+          <Text style={styles.cardText}>Approved Responses</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.card}>
+          <FontAwesome5 name="users" size={40} color="#ff7900" />
+          <Text style={styles.cardText}>Users</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 };
@@ -56,198 +70,85 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F8F9FA',
+    alignItems: 'center',
+    paddingTop: 20,
   },
-  header: {
-    height: 60,
-    backgroundColor: '#ffffff',
+  searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    width: '90%',
+    height: 45,
+    paddingHorizontal: 10,
+    marginBottom: 15,
   },
-  logo: {
-    width: 40,
-    height: 40,
+  searchIcon: {
+    marginRight: 10,
   },
-  searchInput: {
-    marginLeft: 20,
+  searchBar: {
     flex: 1,
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 20,
-    paddingLeft: 20,
-  },
-  emailList: {
-    padding: 10,
-  },
-  emailCard: {
-    backgroundColor: '#fff',
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 8,
-    elevation: 2,
-  },
-  sender: {
     fontSize: 16,
+    color: '#333',
+  },
+  welcomeCard: {
+    width: '90%',
+    backgroundColor: '#FFFFFF',
+    padding: 20,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  welcomeText: {
+    fontSize: 20,
     fontWeight: 'bold',
+    color: '#333',
   },
-  subject: {
-    fontSize: 14,
-    color: '#007bff',
-    marginVertical: 5,
+  username: {
+    color: '#ff7900',
   },
-  snippet: {
-    fontSize: 12,
+  totalUsers: {
+    fontSize: 16,
     color: '#555',
-  },
-  time: {
-    fontSize: 12,
-    color: '#888',
     marginTop: 5,
   },
-  details: {
-    fontSize: 12,
-    color: '#444',
-    marginTop: 10,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#ddd',
+  userCount: {
+    fontWeight: 'bold',
+    color: '#ff7900',
   },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    backgroundColor: '#ff7900',
-    borderRadius: 30,
-    width: 60,
-    height: 60,
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    paddingVertical: 10,
+  },
+  card: {
+    backgroundColor: '#fff',
+    width: 160,
+    height: 120,
+    margin: 10,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  fabText: {
-    color: '#fff',
-    fontSize: 30,
-    fontWeight: 'bold',
+  cardText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: '#555',
+    marginTop: 5,
+  
   },
 });
 
-export default HomeScreen;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState, useContext } from "react";
-// import {
-//   View,
-//   Text,
-//   TouchableOpacity,
-//   StyleSheet,
-//   ScrollView,
-// } from "react-native";
-// import { AuthContext } from "../context/AuthContext";
-// import NewQuestion from "../screens/NewQuestionScreen";
-// import AssignedQuestions from "../screens/AssignedQuestions";
-// import UnassignedQuestions from "../screens/UnAssignedQuestionsScreen";
-// import AllQuestions from "../screens/NewQuestionScreen";
-// import AllUsers from "../screens/AllUsers";
-// import LoadingSpinner from "components/LoadingSpinner";
-
-// const DashboardScreen = () => {
-//   const [activeItem, setActiveItem] = useState<number>(0);
-//   const { user, isLoading } = useContext(AuthContext);
-
-//   if (isLoading) {
-//     return <LoadingSpinner />;
-//   }
-
-//   const handleView = (button: number) => {
-//     setActiveItem(button);
-//   };
-
-//   const components = [
-//     { id: 1, title: "New Question", component: <NewQuestion /> },
-//     { id: 2, title: "Assigned Questions", component: <AssignedQuestions /> },
-//     { id: 4, title: "Unassigned Questions", component: <UnassignedQuestions /> },
-//     { id: 7, title: "All Questions", component: <AllQuestions /> },
-//     { id: 8, title: "All Users", component: <AllUsers /> },
-//   ];
-
-//   return (
-//     <ScrollView style={styles.mainContent}>
-//       <View style={styles.mainHeader}>
-//         <Text style={styles.headerTitle}>Welcome, {user?.name}</Text>
-//       </View>
-//       <View style={styles.cardContainer}>
-//         {components.map((item) => (
-//           <View
-//             key={item.id}
-//             style={[
-//               styles.card,
-//               activeItem === item.id && styles.activeCard,
-//             ]}
-//           >
-//             <TouchableOpacity onPress={() => handleView(item.id)}>
-//               <Text style={styles.cardTitle}>{item.title}</Text>
-//             </TouchableOpacity>
-//             {activeItem === item.id && item.component}
-//           </View>
-//         ))}
-//       </View>
-//     </ScrollView>
-//   );
-// };
-
-// export default DashboardScreen;
-
-// const styles = StyleSheet.create({
-//   mainContent: {
-//     flex: 1,
-//     padding: 10,
-//   },
-//   mainHeader: {
-//     marginBottom: 20,
-//   },
-//   headerTitle: {
-//     fontSize: 20,
-//     fontWeight: "bold",
-//     textAlign: "center",
-//   },
-//   cardContainer: {
-//     flexDirection: "row",
-//     flexWrap: "wrap",
-//     justifyContent: "space-between",
-//   },
-//   card: {
-//     width: "48%",
-//     padding: 15,
-//     marginBottom: 10,
-//     borderRadius: 10,
-//     backgroundColor: "#fff",
-//     borderWidth: 1,
-//     borderColor: "#ddd",
-//   },
-//   activeCard: {
-//     borderColor: "#ff7900",
-//   },
-//   cardTitle: {
-//     fontSize: 16,
-//     fontWeight: "bold",
-//   },
-// });
-
+export default DashboardScreen;

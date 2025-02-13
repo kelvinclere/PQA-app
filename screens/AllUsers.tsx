@@ -1,7 +1,7 @@
 import useUsersData from 'hooks/useUsersData';
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
-import { User } from 'types/User';
+
 
 const AllUsers = () => {
   const { data, isLoading, error } = useUsersData();
@@ -11,14 +11,16 @@ const AllUsers = () => {
   }
 
   if (error) {
+    console.error("Error fetching users:", error.message);
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Error fetching users data</Text>
+        <Text style={styles.errorText}>{error.message}</Text>
       </View>
     );
   }
 
-  const renderItem = ({ item }: { item: User }) => (
+  const renderItem = ({ item }) => (
     <View style={styles.userRow}>
       <Text style={styles.userText}>{item.username}</Text>
       <Text style={styles.userText}>{item.firstName}</Text>

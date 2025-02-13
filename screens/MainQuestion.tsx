@@ -9,8 +9,9 @@ import {
   Alert,
 } from 'react-native';
 import axios from 'axios';
-import { Picker } from '@react-native-picker/picker';
+
 import { BASE_URL } from '@env';
+import Picker from 'react-native-picker-select';
 
 const DEFAULT_HEADERS = { 'Content-Type': 'application/json' };
 

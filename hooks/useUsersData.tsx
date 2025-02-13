@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-const API_URL = "https://407e-41-76-168-3.ngrok-free.app";
+const API_URL = "https://bd1f-41-76-168-3.ngrok-free.app";
 
 export default function useUsersData() {
-  const { isLoading, error, data } = useQuery({
+  return useQuery({
     queryKey: ["allUsers"],
     queryFn: async () => {
       try {
@@ -19,10 +19,4 @@ export default function useUsersData() {
       }
     },
   });
-
-  return {
-    isLoading,
-    error,
-    data,
-  };
 }

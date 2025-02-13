@@ -2,13 +2,12 @@ import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwtDecode from "jwt-decode";
 
-const API_URL = "https://407e-41-76-168-3.ngrok-free.app";
+const API_URL = "https://8add-41-76-168-3.ngrok-free.app";
 
 export const axiosInstance = axios.create({
   baseURL: API_URL,
 });
 
-// Function to attach the access token dynamically
 export const setAuthToken = (accessToken?: string) => {
   if (accessToken) {
     axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
@@ -20,19 +19,27 @@ export const setAuthToken = (accessToken?: string) => {
 // Request Interceptor
 axiosInstance.interceptors.request.use(
   async (config: AxiosRequestConfig) => {
-    const accessToken = await AsyncStorage.getItem("accessToken"); // Get token from AsyncStorage
+    const accessToken = await AsyncStorage.getItem("accessToken");
     if (accessToken) {
       config.headers["Authorization"] = `Bearer ${accessToken}`;
     }
+    console.log("Request sent with headers:", config.headers); 
     return config;
   },
-  (error: AxiosError) => Promise.reject(error)
+  (error: AxiosError) => {
+    console.error("Request error:", error);
+    return Promise.reject(error);
+  }
 );
 
-// Response Interceptor
 axiosInstance.interceptors.response.use(
-  (response: AxiosResponse) => response,
+  (response: AxiosResponse) => {
+    console.log("Response received:", response);
+    return response;
+  },
   async (error: AxiosError) => {
+    console.error("Response error:", error.response?.data || error.message);
+
     if (error.response?.status === 401) {
       const refreshToken = await AsyncStorage.getItem("refreshToken");
       if (refreshToken) {
@@ -41,7 +48,8 @@ axiosInstance.interceptors.response.use(
           const accessToken = await AsyncStorage.getItem("accessToken");
           if (accessToken) {
             error.config.headers["Authorization"] = `Bearer ${accessToken}`;
-            return axiosInstance(error.config); // Retry the request
+            console.log("Retrying request with new access token...");
+            return axiosInstance(error.config); 
           }
         }
       }
@@ -50,16 +58,19 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-// Function to refresh access token
 const refreshAccessToken = async (refreshToken?: string): Promise<boolean> => {
   if (!refreshToken) return false;
 
   try {
+    console.log("Refreshing access token...");
     const { data } = await axiosInstance.post<{ accessToken: string; refreshToken?: string }>(
       "/api/refresh-access-token",
       { refreshToken }
     );
 
+    console.log("Token refresh successful:", data);
+
+    // Store the new access token
     await AsyncStorage.setItem("accessToken", data.accessToken);
     if (data.refreshToken) {
       await AsyncStorage.setItem("refreshToken", data.refreshToken);
@@ -67,7 +78,7 @@ const refreshAccessToken = async (refreshToken?: string): Promise<boolean> => {
 
     return true;
   } catch (error) {
-    console.error("Token refresh failed", error);
+    console.error("Token refresh failed", error.response?.data || error.message);
     return false;
   }
 };
